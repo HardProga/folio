@@ -1,62 +1,39 @@
-"use client";
-
-import { motion } from "framer-motion";
+import { useInView } from "@/lib/useInView";
+import SectionHeading from "./SectionHeading";
 
 const stats = [
-  {
-    number: "20+",
-    label: "Projects Shipped",
-    description: "Successful launches across web, mobile, and desktop",
-  },
-  {
-    number: "10+",
-    label: "Happy Clients",
-    description: "From startups to established businesses",
-  },
-  {
-    number: "3+",
-    label: "Years Experience",
-    description: "Continuous learning and growth in the field",
-  },
+  { number: "20+", label: "Projects Shipped", sub: "Across web, mobile, and desktop" },
+  { number: "10+", label: "Happy Clients", sub: "From startups to established businesses" },
+  { number: "3+", label: "Years Experience", sub: "Continuous learning and growth" },
 ];
 
 export default function Stats() {
-  return (
-    <section id="stats" className="py-32 relative">
-      <div className="mx-auto max-w-6xl px-6">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-sm uppercase tracking-widest text-accent mb-3">
-            By the Numbers
-          </h2>
-          <p className="text-muted text-base">
-            Impact and achievements over the years
-          </p>
-        </motion.div>
+  const { ref, visible } = useInView();
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              className="glass-card p-10 text-center"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+  return (
+    <section id="stats" className="py-28 relative" ref={ref}>
+      <div className="mx-auto max-w-[1120px] px-6">
+        <SectionHeading tag="By the Numbers" title="Impact and achievements over the years" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {stats.map((s, i) => (
+            <div
+              key={s.label}
+              className={`glass-card p-10 text-center transition-all duration-700 ${
+                visible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
+              style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <div className="text-5xl sm:text-6xl font-bold gradient-text-accent mb-3">
-                {stat.number}
+              <div className="text-5xl sm:text-6xl font-bold tracking-[-0.04em] gradient-text-accent mb-2">
+                {s.number}
               </div>
-              <div className="text-foreground font-medium mb-2">
-                {stat.label}
+              <div className="text-foreground font-medium text-[15px] mb-1">
+                {s.label}
               </div>
-              <div className="text-sm text-muted">{stat.description}</div>
-            </motion.div>
+              <div className="text-xs text-muted">{s.sub}</div>
+            </div>
           ))}
         </div>
       </div>

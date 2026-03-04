@@ -1,53 +1,41 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { blogPosts } from "@/lib/data";
+import { useInView } from "@/lib/useInView";
+import SectionHeading from "./SectionHeading";
 
 export default function Blog() {
+  const { ref, visible } = useInView();
+
   return (
-    <section className="py-32 relative">
+    <section className="py-28 relative" ref={ref}>
       <div className="orb orb-blue w-[400px] h-[400px] -left-40 bottom-0 animate-pulse-slow" />
 
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-sm uppercase tracking-widest text-accent mb-3">
-            Blog
-          </h2>
-          <p className="text-3xl sm:text-4xl font-bold gradient-text">
-            Recent Posts
-          </p>
-        </motion.div>
+      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+        <SectionHeading tag="Blog" title="Recent Posts" />
 
-        <div className="max-w-3xl mx-auto space-y-1">
+        <div className="max-w-2xl mx-auto">
           {blogPosts.map((post, i) => (
-            <motion.div
+            <div
               key={post.title}
-              className="group flex items-center justify-between gap-4 p-5 rounded-2xl hover:bg-white/[0.03] transition-all duration-300 cursor-pointer border border-transparent hover:border-white/[0.06]"
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className={`group flex items-center justify-between gap-4 py-4 px-5 -mx-5 rounded-2xl cursor-pointer transition-all duration-500 border border-transparent hover:bg-white/[0.03] hover:border-white/[0.06] ${
+                visible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-5"
+              }`}
+              style={{ transitionDelay: `${i * 80}ms` }}
             >
-              <div className="flex-1 min-w-0">
-                <h3 className="text-foreground font-medium text-sm sm:text-base truncate group-hover:text-accent transition-colors duration-300">
-                  {post.title}
-                </h3>
-              </div>
+              <h3 className="text-[14px] font-medium text-foreground/90 tracking-[-0.01em] truncate group-hover:text-accent transition-colors duration-300 flex-1 min-w-0">
+                {post.title}
+              </h3>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-xs text-muted">{post.date}</span>
+                <span className="text-[11px] text-muted">{post.date}</span>
                 <ArrowUpRight
-                  size={14}
-                  className="text-muted group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300"
+                  size={13}
+                  strokeWidth={1.5}
+                  className="text-muted/50 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300"
                 />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

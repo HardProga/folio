@@ -24,10 +24,10 @@ export default function Services() {
   const { ref, visible } = useInView();
 
   return (
-    <section className="py-28 relative" ref={ref}>
+    <section className="section-shell relative" ref={ref}>
       <div className="orb orb-blue w-[500px] h-[500px] -right-48 top-0 animate-pulse-slow" />
 
-      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+      <div className="section-container relative z-10">
         <SectionHeading
           tag="What I Do"
           title="End-to-end engineering across mobile, web, backend, and desktop"

@@ -5,11 +5,11 @@ export default function Contact() {
   const { ref, visible } = useInView();
 
   return (
-    <section id="contact" className="py-28 relative" ref={ref}>
+    <section id="contact" className="section-shell relative" ref={ref}>
       <div className="orb orb-green w-[500px] h-[500px] right-0 -bottom-40 animate-pulse-slow" />
       <div className="orb orb-purple w-[400px] h-[400px] -left-20 top-0 animate-pulse-slow" />
 
-      <div className="mx-auto max-w-2xl px-6 relative z-10">
+      <div className="section-container max-w-2xl relative z-10">
         <div
           className={`glass-card p-10 sm:p-16 text-center transition-all duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"

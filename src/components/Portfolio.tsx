@@ -10,10 +10,10 @@ export default function Portfolio() {
   const { ref, visible } = useInView();
 
   return (
-    <section id="portfolio" className="py-28 relative" ref={ref}>
+    <section id="portfolio" className="section-shell relative" ref={ref}>
       <div className="orb orb-green w-[450px] h-[450px] right-0 top-40 animate-pulse-slow" />
 
-      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+      <div className="section-container relative z-10">
         <SectionHeading tag="Selected Work" title="My Amazing Work" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

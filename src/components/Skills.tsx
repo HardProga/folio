@@ -14,10 +14,10 @@ export default function Skills() {
   const { ref, visible } = useInView();
 
   return (
-    <section className="py-28 relative" ref={ref}>
+    <section className="section-shell relative" ref={ref}>
       <div className="orb orb-purple w-[500px] h-[500px] -left-48 top-20 animate-pulse-slow" />
 
-      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+      <div className="section-container relative z-10">
         <SectionHeading
           tag="Skills & Expertise"
           title="A comprehensive toolkit for modern product development"

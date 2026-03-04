@@ -10,8 +10,8 @@ export default function StreamSchedule() {
   const { ref, visible } = useInView();
 
   return (
-    <section className="py-28 relative" ref={ref}>
-      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+    <section className="section-shell relative" ref={ref}>
+      <div className="section-container relative z-10">
         <SectionHeading tag="Live Streams" title="Stream Schedule" />
 
         <div

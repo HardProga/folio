@@ -11,8 +11,8 @@ export default function Stats() {
   const { ref, visible } = useInView();
 
   return (
-    <section id="stats" className="py-28 relative" ref={ref}>
-      <div className="mx-auto max-w-[1120px] px-6">
+    <section id="stats" className="section-shell relative" ref={ref}>
+      <div className="section-container">
         <SectionHeading tag="By the Numbers" title="Impact and achievements over the years" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

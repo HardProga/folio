@@ -28,7 +28,7 @@ export const projects = [
     category: "DESKTOP",
     year: 2025,
     description:
-      "A cross-platform desktop app locker built with Wails (Go + React). PriPri monitors running applications and displays a password-protected lock screen.",
+      "A cross-platform desktop app locker built with Wails (Go + React). Monitors running apps and displays a password-protected lock screen.",
     color: "#ff9f0a",
   },
   {
@@ -108,7 +108,7 @@ export const projects = [
     category: "MOBILE",
     year: 2023,
     description:
-      "A Flutter mobile app consuming the PokéAPI to browse Pokémon, view detailed stats, and discover similar species — built as a deep-dive into API integration.",
+      "A Flutter mobile app consuming the PokéAPI to browse Pokémon, view detailed stats, and discover similar species.",
     color: "#ff9f0a",
   },
   {
@@ -116,7 +116,7 @@ export const projects = [
     category: "WEB",
     year: 2022,
     description:
-      "A professional hotel website for Gullivers Travel Hotel featuring room showcase, restaurant gallery, lounge section, and booking system.",
+      "A professional hotel website featuring room showcase, restaurant gallery, lounge section, and booking system.",
     color: "#ff375f",
   },
   {
@@ -142,42 +142,42 @@ export const services = [
     title: "Mobile Development",
     description:
       "Cross-platform iOS and Android apps built with Flutter and React Native, from zero to production.",
-    icon: "Smartphone",
+    icon: "Smartphone" as const,
   },
   {
     title: "Web Development",
     description:
       "Fast, responsive web applications built with React, Next.js, and Astro — optimised for performance and SEO.",
-    icon: "Globe",
+    icon: "Globe" as const,
   },
   {
     title: "Backend Engineering",
     description:
       "Scalable REST APIs built with Node.js/Express and Go, backed by PostgreSQL and MongoDB.",
-    icon: "Server",
+    icon: "Server" as const,
   },
   {
     title: "Desktop Applications",
     description:
       "Cross-platform desktop apps built with Wails (Go + React) — native feel on macOS and Windows.",
-    icon: "Monitor",
+    icon: "Monitor" as const,
   },
   {
     title: "DevOps & CI/CD",
     description:
-      "Automated pipelines via GitHub Actions and Azure DevOps, Docker containerisation, and cloud hosting on AWS and Cloudflare.",
-    icon: "GitBranch",
+      "Automated pipelines via GitHub Actions and Azure DevOps, Docker containerisation, and cloud hosting on AWS.",
+    icon: "GitBranch" as const,
   },
   {
     title: "Technical Consulting",
     description:
       "Architecture reviews, tech-stack guidance, and hands-on support for teams building software products.",
-    icon: "MessageSquare",
+    icon: "MessageSquare" as const,
   },
 ];
 
 export const skills = {
-  frontend: ["React", "Next.js", "TypeScript", "Tailwind", "Astro"],
+  frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Astro"],
   mobile: ["React Native", "Flutter", "iOS Design", "Android"],
   backend: ["Node.js", "Go", "REST APIs", "GraphQL", "PostgreSQL", "MongoDB"],
   tools: ["AWS", "Docker", "Figma", "GitHub Actions", "Azure DevOps"],
@@ -185,26 +185,11 @@ export const skills = {
 };
 
 export const blogPosts = [
-  {
-    title: "Why I switched from Flutter to React Native (and back)",
-    date: "19 Jan",
-  },
-  {
-    title: "Mutex in JavaScript — you probably need one",
-    date: "09 Nov",
-  },
-  {
-    title: "Server-Sent Events vs WebSockets — when to use which",
-    date: "03 Sept",
-  },
-  {
-    title: "Building Envoyer — lessons from a six-month freelance project",
-    date: "17 Jul",
-  },
-  {
-    title: "Golang in 2025 — is it worth learning as your second backend language?",
-    date: "01 May",
-  },
+  { title: "Why I switched from Flutter to React Native (and back)", date: "19 Jan" },
+  { title: "Mutex in JavaScript — you probably need one", date: "09 Nov" },
+  { title: "Server-Sent Events vs WebSockets — when to use which", date: "03 Sept" },
+  { title: "Building Envoyer — lessons from a six-month freelance project", date: "17 Jul" },
+  { title: "Golang in 2025 — is it worth learning as your second backend language?", date: "01 May" },
 ];
 
 export const streamSchedule = [
@@ -217,4 +202,4 @@ export const streamSchedule = [
   { day: "SUN", time: null, platform: null },
 ];
 
-export const categories = ["ALL", "WEB", "MOBILE", "DESKTOP", "SAAS", "CLI", "BACKEND"];
+export const categories = ["ALL", "WEB", "MOBILE", "DESKTOP", "SAAS"] as const;

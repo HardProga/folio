@@ -1,86 +1,79 @@
-"use client";
-
-import Link from "next/link";
 import { useState } from "react";
+import { Link, useLocation } from "react-router";
 import { Menu, X } from "lucide-react";
+
+const links = [
+  { to: "/", label: "Home" },
+  { to: "/works", label: "Works" },
+  { to: "/about", label: "About" },
+];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
 
   return (
     <nav className="glass-nav fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06]">
-      <div className="mx-auto max-w-6xl px-6 flex items-center justify-between h-14">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent-green flex items-center justify-center text-xs font-bold text-black">
+      <div className="mx-auto max-w-[1120px] px-6 flex items-center justify-between h-12">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-green flex items-center justify-center text-[10px] font-bold text-black tracking-tight">
             GH
           </div>
-          <span className="text-sm font-semibold tracking-tight text-foreground/90 hidden sm:inline">
+          <span className="text-[13px] font-semibold tracking-[-0.02em] text-foreground/80 hidden sm:inline">
             GEORGE HEAVENSON
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
-          <Link
-            href="/"
-            className="text-sm text-muted hover:text-foreground transition-colors duration-300"
-          >
-            Home
-          </Link>
-          <Link
-            href="/works"
-            className="text-sm text-muted hover:text-foreground transition-colors duration-300"
-          >
-            Works
-          </Link>
-          <Link
-            href="/about"
-            className="text-sm text-muted hover:text-foreground transition-colors duration-300"
-          >
-            About
-          </Link>
-          <a
-            href="#contact"
-            className="text-sm px-5 py-2 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-all duration-300"
-          >
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-7">
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className={`text-xs tracking-[-0.01em] transition-colors duration-300 ${
+                pathname === l.to
+                  ? "text-foreground font-medium"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              {l.label}
+            </Link>
+          ))}
+          <a href="#contact" className="btn-primary !py-2 !px-5 !text-xs">
             Get in Touch
           </a>
         </div>
 
+        {/* Mobile toggle */}
         <button
-          className="md:hidden text-foreground"
+          className="md:hidden text-foreground/80"
           onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
         >
-          {open ? <X size={20} /> : <Menu size={20} />}
+          {open ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
+      {/* Mobile menu */}
       {open && (
-        <div className="md:hidden glass-nav border-t border-white/[0.06] px-6 py-6 flex flex-col gap-4">
-          <Link
-            href="/"
-            onClick={() => setOpen(false)}
-            className="text-sm text-muted hover:text-foreground transition-colors"
-          >
-            Home
-          </Link>
-          <Link
-            href="/works"
-            onClick={() => setOpen(false)}
-            className="text-sm text-muted hover:text-foreground transition-colors"
-          >
-            Works
-          </Link>
-          <Link
-            href="/about"
-            onClick={() => setOpen(false)}
-            className="text-sm text-muted hover:text-foreground transition-colors"
-          >
-            About
-          </Link>
+        <div className="md:hidden glass-nav border-t border-white/[0.06] px-6 py-5 flex flex-col gap-4">
+          {links.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              onClick={() => setOpen(false)}
+              className={`text-sm transition-colors ${
+                pathname === l.to ? "text-foreground" : "text-muted"
+              }`}
+            >
+              {l.label}
+            </Link>
+          ))}
           <a
             href="#contact"
             onClick={() => setOpen(false)}
-            className="text-sm px-5 py-2 rounded-full bg-white text-black font-medium text-center hover:bg-white/90 transition-all"
+            className="btn-primary !text-xs text-center mt-1"
           >
             Get in Touch
           </a>

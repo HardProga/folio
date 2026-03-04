@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import {
   Smartphone,
   Globe,
@@ -9,9 +6,12 @@ import {
   GitBranch,
   MessageSquare,
 } from "lucide-react";
+import type { ElementType } from "react";
 import { services } from "@/lib/data";
+import { useInView } from "@/lib/useInView";
+import SectionHeading from "./SectionHeading";
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, ElementType> = {
   Smartphone,
   Globe,
   Server,
@@ -21,49 +21,45 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export default function Services() {
-  return (
-    <section className="py-32 relative">
-      <div className="orb orb-blue w-[400px] h-[400px] -right-40 top-0 animate-pulse-slow" />
+  const { ref, visible } = useInView();
 
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-sm uppercase tracking-widest text-accent mb-3">
-            What I Do
-          </h2>
-          <p className="text-3xl sm:text-4xl font-bold gradient-text max-w-2xl mx-auto">
-            End-to-end software engineering across mobile, web, backend, and
-            desktop
-          </p>
-        </motion.div>
+  return (
+    <section className="py-28 relative" ref={ref}>
+      <div className="orb orb-blue w-[500px] h-[500px] -right-48 top-0 animate-pulse-slow" />
+
+      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+        <SectionHeading
+          tag="What I Do"
+          title="End-to-end engineering across mobile, web, backend, and desktop"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {services.map((service, i) => {
-            const Icon = iconMap[service.icon];
+          {services.map((s, i) => {
+            const Icon = iconMap[s.icon];
             return (
-              <motion.div
-                key={service.title}
-                className="glass-card p-8 group"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
+              <div
+                key={s.title}
+                className={`glass-card p-8 group transition-all duration-700 ${
+                  visible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: `${i * 80}ms` }}
               >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent/20 to-accent-green/20 flex items-center justify-center mb-5 group-hover:from-accent/30 group-hover:to-accent-green/30 transition-all duration-300">
-                  <Icon size={22} className="text-accent" />
+                <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center mb-5 group-hover:bg-accent/20 transition-colors duration-300">
+                  <Icon
+                    size={20}
+                    strokeWidth={1.5}
+                    className="text-accent"
+                  />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  {service.title}
+                <h3 className="text-[15px] font-semibold text-foreground tracking-[-0.01em] mb-2">
+                  {s.title}
                 </h3>
-                <p className="text-sm text-muted leading-relaxed">
-                  {service.description}
+                <p className="text-[13px] text-muted leading-relaxed">
+                  {s.description}
                 </p>
-              </motion.div>
+              </div>
             );
           })}
         </div>

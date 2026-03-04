@@ -1,7 +1,6 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { skills } from "@/lib/data";
+import { useInView } from "@/lib/useInView";
+import SectionHeading from "./SectionHeading";
 
 const groups = [
   { label: "Frontend", items: skills.frontend, color: "#2997ff" },
@@ -12,60 +11,54 @@ const groups = [
 ];
 
 export default function Skills() {
-  return (
-    <section className="py-32 relative">
-      <div className="orb orb-purple w-[500px] h-[500px] -left-40 top-20 animate-pulse-slow" />
+  const { ref, visible } = useInView();
 
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-sm uppercase tracking-widest text-accent mb-3">
-            Skills &amp; Expertise
-          </h2>
-          <p className="text-3xl sm:text-4xl font-bold gradient-text">
-            A comprehensive toolkit for modern product development
-          </p>
-        </motion.div>
+  return (
+    <section className="py-28 relative" ref={ref}>
+      <div className="orb orb-purple w-[500px] h-[500px] -left-48 top-20 animate-pulse-slow" />
+
+      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+        <SectionHeading
+          tag="Skills & Expertise"
+          title="A comprehensive toolkit for modern product development"
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {groups.map((group, gi) => (
-            <motion.div
-              key={group.label}
-              className="glass-card p-7"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: gi * 0.08 }}
+          {groups.map((g, gi) => (
+            <div
+              key={g.label}
+              className={`glass-card p-7 transition-all duration-700 ${
+                visible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
+              style={{ transitionDelay: `${gi * 80}ms` }}
             >
-              <div className="flex items-center gap-3 mb-5">
+              <div className="flex items-center gap-2.5 mb-5">
                 <div
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: group.color }}
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: g.color }}
                 />
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
-                  {group.label}
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground/70">
+                  {g.label}
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {group.items.map((skill) => (
+                {g.items.map((skill) => (
                   <span
                     key={skill}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium glass hover:bg-white/10 transition-colors duration-200"
+                    className="px-3 py-1.5 rounded-full text-[11px] font-medium transition-colors duration-200 border"
                     style={{
-                      borderColor: `${group.color}20`,
-                      color: group.color,
+                      borderColor: `${g.color}18`,
+                      color: g.color,
+                      background: `${g.color}08`,
                     }}
                   >
                     {skill}
                   </span>
                 ))}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

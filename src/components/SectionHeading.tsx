@@ -5,7 +5,7 @@ interface Props {
 
 export default function SectionHeading({ tag, title }: Props) {
   return (
-    <div className="text-center mb-16">
+    <div className="text-center mb-12 sm:mb-14 lg:mb-16">
       <p className="text-[11px] uppercase tracking-[0.2em] text-accent font-medium mb-3">
         {tag}
       </p>

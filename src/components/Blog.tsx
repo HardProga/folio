@@ -7,10 +7,10 @@ export default function Blog() {
   const { ref, visible } = useInView();
 
   return (
-    <section className="py-28 relative" ref={ref}>
+    <section className="section-shell relative" ref={ref}>
       <div className="orb orb-blue w-[400px] h-[400px] -left-40 bottom-0 animate-pulse-slow" />
 
-      <div className="mx-auto max-w-[1120px] px-6 relative z-10">
+      <div className="section-container relative z-10">
         <SectionHeading tag="Blog" title="Recent Posts" />
 
         <div className="max-w-2xl mx-auto">

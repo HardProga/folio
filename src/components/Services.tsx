@@ -41,8 +41,8 @@ export default function Services() {
                 transition={{ duration: 0.55, ease: "easeOut", delay: i * 0.07 }}
                 className="glass-card p-7 group"
               >
-                <div className="w-10 h-10 rounded-2xl bg-accent/[0.08] flex items-center justify-center mb-5 group-hover:bg-accent/[0.14] transition-colors duration-300">
-                  <Icon size={18} strokeWidth={1.5} className="text-accent" />
+                <div className="w-10 h-10 rounded-2xl bg-black/[0.06] flex items-center justify-center mb-5 group-hover:bg-black/[0.1] transition-colors duration-300">
+                  <Icon size={18} strokeWidth={1.5} className="text-foreground" />
                 </div>
                 <h3 className="text-[15px] font-semibold text-foreground tracking-[-0.01em] mb-2">
                   {s.title}

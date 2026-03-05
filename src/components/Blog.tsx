@@ -27,7 +27,7 @@ export default function Blog() {
                 <ArrowUpRight
                   size={13}
                   strokeWidth={1.5}
-                  className="text-muted/50 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200"
+                  className="text-muted/50 group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200"
                 />
               </div>
             </motion.div>

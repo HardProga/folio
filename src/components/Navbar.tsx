@@ -15,19 +15,8 @@ export default function Navbar() {
   return (
     <nav className="glass-nav fixed top-0 left-0 right-0 z-50 border-b border-black/[0.08]">
       <div className="section-container h-14 flex items-center justify-between gap-5">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-2.5 shrink-0"
-          onClick={() => setOpen(false)}
-        >
-          <div className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center text-[9px] font-semibold text-white tracking-tight">
-            G
-          </div>
-          <span className="text-[13px] font-semibold tracking-tight text-foreground hidden sm:inline">
-            George
-          </span>
-        </Link>
+        {/* Balance spacer (desktop) */}
+        <div className="hidden md:block w-[88px]" />
 
         {/* Center nav pill */}
         <div className="hidden md:flex items-center gap-0.5 rounded-full border border-black/[0.08] bg-black/[0.02] p-1">
@@ -46,19 +35,20 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* CTA */}
-        <a href="#contact" className="btn-primary !py-1.5 !px-4 !text-[13px] hidden md:inline-flex">
-          Contact
-        </a>
-
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden text-foreground/70 hover:text-foreground transition-colors"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={18} /> : <Menu size={18} />}
-        </button>
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+          <a href="#contact" className="btn-primary !py-1.5 !px-4 !text-[13px] hidden md:inline-flex">
+            Contact
+          </a>
+          {/* Mobile toggle */}
+          <button
+            className="md:hidden text-foreground/70 hover:text-foreground transition-colors"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
 
       {open && (

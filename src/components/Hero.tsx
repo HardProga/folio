@@ -23,8 +23,8 @@ export default function Hero() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-4xl mx-auto mb-16"
         >
-          {/* Cinematic, ultra-rounded image container */}
-          <div className="relative rounded-[2.5rem] overflow-hidden bg-surface border border-black/[0.04] shadow-2xl shadow-black/[0.04] aspect-[16/9] sm:aspect-[21/9] flex items-center justify-center">
+          {/* Portrait container */}
+          <div className="relative rounded-[2.5rem] overflow-hidden bg-surface aspect-[16/9] flex items-center justify-center">
             {photoMissing ? (
               <div className="p-8 text-center">
                 <p className="text-[15px] text-muted">
@@ -36,7 +36,7 @@ export default function Hero() {
               <img
                 src="/portrait.png"
                 alt="Professional studio portrait"
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-top"
                 onError={() => setPhotoMissing(true)}
               />
             )}
@@ -52,8 +52,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-[12px] font-medium text-muted tracking-wide mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-foreground text-white text-[11px] font-semibold tracking-[0.08em] uppercase mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
               Mobile &amp; Software Engineer
             </span>
           </motion.div>
@@ -66,7 +66,7 @@ export default function Hero() {
             className="text-[3rem] sm:text-[4.5rem] md:text-[5.5rem] font-bold tracking-tight leading-[0.95] mb-6 text-foreground"
           >
             Building Apps <br />
-            <span className="text-accent">People Actually Use.</span>
+            People Actually Use.
           </motion.h1>
 
           {/* Sub */}

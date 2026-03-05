@@ -1,30 +1,25 @@
 import { ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { blogPosts } from "@/lib/data";
-import { useInView } from "@/lib/useInView";
 import SectionHeading from "./SectionHeading";
 
 export default function Blog() {
-  const { ref, visible } = useInView();
-
   return (
-    <section className="section-shell relative" ref={ref}>
-      <div className="orb orb-blue w-[400px] h-[400px] -left-40 bottom-0 animate-pulse-slow" />
-
-      <div className="section-container relative z-10">
+    <section className="section-shell">
+      <div className="section-container">
         <SectionHeading tag="Blog" title="Recent Posts" />
 
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto divide-y divide-black/[0.06]">
           {blogPosts.map((post, i) => (
-            <div
+            <motion.div
               key={post.title}
-              className={`group flex items-center justify-between gap-4 py-4 px-5 -mx-5 rounded-2xl cursor-pointer transition-all duration-500 border border-transparent hover:bg-white/[0.03] hover:border-white/[0.06] ${
-                visible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-5"
-              }`}
-              style={{ transitionDelay: `${i * 80}ms` }}
+              initial={{ opacity: 0, x: -16 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.07 }}
+              className="group flex items-center justify-between gap-4 py-4 cursor-pointer hover:opacity-70 transition-opacity duration-200"
             >
-              <h3 className="text-[14px] font-medium text-foreground/90 tracking-[-0.01em] truncate group-hover:text-accent transition-colors duration-300 flex-1 min-w-0">
+              <h3 className="text-[14px] font-medium text-foreground tracking-[-0.01em] truncate flex-1 min-w-0">
                 {post.title}
               </h3>
               <div className="flex items-center gap-3 shrink-0">
@@ -32,10 +27,10 @@ export default function Blog() {
                 <ArrowUpRight
                   size={13}
                   strokeWidth={1.5}
-                  className="text-muted/50 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300"
+                  className="text-muted/50 group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200"
                 />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

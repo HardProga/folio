@@ -47,7 +47,7 @@ export default function About() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.08 }}
-          className="glass-card p-10 sm:p-14 mb-5"
+          className="glass-card p-10 sm:p-14 mb-6"
         >
           <p className="text-[16px] text-foreground leading-[1.75] mb-6">
             I'm a Mobile and Software Engineer based in Accra, Ghana, with 3+
@@ -71,7 +71,7 @@ export default function About() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.16 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6"
         >
           {infoCards.map(({ icon: Icon, label, value }) => (
             <div key={label} className="glass-card p-6 text-center">

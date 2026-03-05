@@ -1,23 +1,24 @@
 import { Twitch, Youtube } from "lucide-react";
+import { motion } from "framer-motion";
 import { streamSchedule } from "@/lib/data";
-import { useInView } from "@/lib/useInView";
 import SectionHeading from "./SectionHeading";
 
 export default function StreamSchedule() {
   const today = new Date()
     .toLocaleDateString("en-US", { weekday: "short" })
     .toUpperCase();
-  const { ref, visible } = useInView();
 
   return (
-    <section className="section-shell relative" ref={ref}>
-      <div className="section-container relative z-10">
+    <section className="section-shell">
+      <div className="section-container">
         <SectionHeading tag="Live Streams" title="Stream Schedule" />
 
-        <div
-          className={`glass-card p-8 max-w-2xl mx-auto transition-all duration-700 ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="glass-card p-8 max-w-2xl mx-auto"
         >
           <div className="grid grid-cols-7 gap-2">
             {streamSchedule.map((slot) => {
@@ -25,15 +26,15 @@ export default function StreamSchedule() {
               return (
                 <div
                   key={slot.day}
-                  className={`text-center py-4 px-1 rounded-2xl transition-all duration-300 ${
+                  className={`text-center py-4 px-1 rounded-2xl transition-all duration-200 ${
                     isToday
-                      ? "bg-accent/12 border border-accent/25"
-                      : "bg-white/[0.02] border border-transparent"
+                      ? "bg-accent/[0.08] border border-accent/[0.2]"
+                      : "bg-black/[0.02] border border-transparent"
                   }`}
                 >
                   <div
                     className={`text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.1em] mb-2 ${
-                      isToday ? "text-accent" : "text-muted/70"
+                      isToday ? "text-accent" : "text-muted/60"
                     }`}
                   >
                     {slot.day}
@@ -65,14 +66,14 @@ export default function StreamSchedule() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-[11px] font-medium text-muted hover:text-foreground hover:bg-white/[0.08] transition-all duration-300"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-[11px] font-medium text-muted hover:text-foreground hover:bg-black/[0.04] transition-all duration-200"
               >
                 <Icon size={13} strokeWidth={1.5} />
                 {label}
               </a>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

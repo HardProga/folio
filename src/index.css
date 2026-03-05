@@ -45,7 +45,7 @@ body {
 }
 
 ::selection {
-  background: rgba(0, 113, 227, 0.15);
+  background: rgba(0, 0, 0, 0.1);
   color: #1d1d1f;
 }
 
@@ -62,16 +62,14 @@ body {
 /* ── Card ── */
 .glass-card {
   background: #f5f5f7;
-  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
-  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: background 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .glass-card:hover {
   background: #ebebed;
-  border-color: rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
-  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 /* ── Navbar ── */
@@ -132,7 +130,7 @@ body {
   gap: 0.5rem;
   padding: 0.75rem 1.625rem;
   border-radius: 980px;
-  background: #0071e3;
+  background: #1d1d1f;
   color: #ffffff;
   font-size: 0.875rem;
   font-weight: 400;
@@ -143,8 +141,7 @@ body {
   text-decoration: none;
 }
 .btn-primary:hover {
-  background: #0077ed;
-  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+  background: #3a3a3c;
 }
 
 .btn-secondary {

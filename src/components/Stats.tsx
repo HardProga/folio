@@ -23,7 +23,7 @@ export default function Stats() {
               transition={{ duration: 0.55, ease: "easeOut", delay: i * 0.1 }}
               className="glass-card p-10 text-center"
             >
-              <div className="text-5xl sm:text-6xl font-bold tracking-[-0.04em] text-accent mb-2">
+              <div className="text-5xl sm:text-6xl font-bold tracking-[-0.04em] text-foreground mb-2">
                 {s.number}
               </div>
               <div className="text-[15px] font-semibold text-foreground mb-1">

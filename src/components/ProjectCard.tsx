@@ -11,7 +11,7 @@ export default function ProjectCard({ title, category, year, description, color 
     <div className="glass-card overflow-hidden group h-full flex flex-col">
       {/* Cover */}
       <div
-        className="h-40 relative overflow-hidden rounded-t-[18px]"
+        className="h-48 relative overflow-hidden rounded-t-[18px]"
         style={{ background: `${color}0d` }}
       >
         <div
@@ -28,8 +28,8 @@ export default function ProjectCard({ title, category, year, description, color 
       </div>
 
       {/* Body */}
-      <div className="p-5 flex-1 flex flex-col">
-        <div className="flex items-center justify-between mb-3">
+      <div className="p-6 flex-1 flex flex-col">
+        <div className="flex items-center justify-between mb-4">
           <span
             className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full"
             style={{ background: `${color}0f`, color }}

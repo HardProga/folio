@@ -19,7 +19,7 @@ export default function Skills() {
           title="A comprehensive toolkit for modern product development"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {groups.map((g, gi) => (
             <motion.div
               key={g.label}

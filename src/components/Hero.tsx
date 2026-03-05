@@ -21,12 +21,12 @@ export default function Hero() {
           initial={{ opacity: 0, scale: 0.96, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-4xl mx-auto mb-16"
+          className="w-full max-w-sm mx-auto mb-14"
         >
-          {/* Portrait container */}
-          <div className="relative rounded-[2.5rem] overflow-hidden bg-surface aspect-[16/9] flex items-center justify-center">
+          {/* Portrait container — portrait aspect so the photo isn't cropped */}
+          <div className="relative rounded-[2rem] overflow-hidden bg-surface mx-auto w-full max-w-[420px] aspect-[4/5]">
             {photoMissing ? (
-              <div className="p-8 text-center">
+              <div className="w-full h-full flex items-center justify-center p-8 text-center">
                 <p className="text-[15px] text-muted">
                   Add your professional image as{" "}
                   <span className="text-foreground font-medium">public/portrait.png</span>
@@ -36,7 +36,7 @@ export default function Hero() {
               <img
                 src="/portrait.png"
                 alt="Professional studio portrait"
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-center"
                 onError={() => setPhotoMissing(true)}
               />
             )}

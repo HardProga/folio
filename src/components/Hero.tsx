@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ArrowDown, Github, Linkedin, Twitch, Youtube } from "lucide-react";
 import { motion } from "framer-motion";
-import HeroScene from "./HeroScene";
 
 const socials = [
   { icon: Github,   href: "https://github.com",   label: "GitHub" },
@@ -14,123 +13,115 @@ export default function Hero() {
   const [photoMissing, setPhotoMissing] = useState(false);
 
   return (
-    <section className="relative min-h-[calc(100vh-3.5rem)] flex items-center justify-center overflow-hidden py-20">
-      <div className="relative z-10 section-container">
-        <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] items-center">
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-24">
+      <div className="relative z-10 section-container flex flex-col items-center text-center">
 
-          {/* ── Left: Text ── */}
-          <div className="text-center lg:text-left">
-
-            {/* Overline badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0 }}
-            >
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass text-[11px] text-muted tracking-wide mb-8">
-                <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
-                Mobile &amp; Software Engineer
-              </span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.08 }}
-              className="text-[2.6rem] sm:text-[3.8rem] xl:text-[5rem] font-bold tracking-[-0.048em] leading-[0.94] mb-6 text-foreground"
-            >
-              Building Apps
-              <br />
-              <span className="text-accent">People Actually</span>
-              <br />
-              Use.
-            </motion.h1>
-
-            {/* Sub */}
-            <motion.p
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.16 }}
-              className="text-[15px] sm:text-[17px] text-muted max-w-xl lg:max-w-md mx-auto lg:mx-0 mb-10 leading-relaxed tracking-[-0.01em]"
-            >
-              Full-stack and mobile engineer with 3+ years shipping cross-platform
-              applications for web, mobile, and desktop. I also stream for fun.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.24 }}
-              className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 mb-10"
-            >
-              <a href="#portfolio" className="btn-primary">View My Work</a>
-              <a href="#contact" className="btn-secondary">Get in Touch</a>
-            </motion.div>
-
-            {/* Socials */}
-            <motion.div
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.32 }}
-              className="flex items-center justify-center lg:justify-start gap-3"
-            >
-              {socials.map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-9 h-9 rounded-full glass flex items-center justify-center text-muted hover:text-foreground hover:bg-black/[0.06] transition-all duration-200"
-                >
-                  <Icon size={15} strokeWidth={1.5} />
-                </a>
-              ))}
-            </motion.div>
+        {/* ── Top: Professional Portrait ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-4xl mx-auto mb-16"
+        >
+          {/* Cinematic, ultra-rounded image container */}
+          <div className="relative rounded-[2.5rem] overflow-hidden bg-surface border border-black/[0.04] shadow-2xl shadow-black/[0.04] aspect-[16/9] sm:aspect-[21/9] flex items-center justify-center">
+            {photoMissing ? (
+              <div className="p-8 text-center">
+                <p className="text-[15px] text-muted">
+                  Add your professional image as{" "}
+                  <span className="text-foreground font-medium">public/portrait.png</span>
+                </p>
+              </div>
+            ) : (
+              <img
+                src="/portrait.png"
+                alt="Professional studio portrait"
+                className="w-full h-full object-cover object-center"
+                onError={() => setPhotoMissing(true)}
+              />
+            )}
           </div>
+        </motion.div>
 
-          {/* ── Right: 3D + Photo ── */}
+        {/* ── Bottom: Copy & CTAs ── */}
+        <div className="max-w-3xl mx-auto flex flex-col items-center">
+          
+          {/* Overline badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
           >
-            <HeroScene />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-[12px] font-medium text-muted tracking-wide mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green animate-pulse" />
+              Mobile &amp; Software Engineer
+            </span>
+          </motion.div>
 
-            {/* Profile photo card */}
-            <div className="glass-card p-3.5">
-              {photoMissing ? (
-                <div className="h-[200px] rounded-[14px] border border-dashed border-black/[0.1] bg-surface flex items-center justify-center text-center px-6">
-                  <p className="text-[13px] text-muted">
-                    Add your image as{" "}
-                    <span className="text-foreground font-medium">public/selfie.jpg</span>{" "}
-                    to show your portrait.
-                  </p>
-                </div>
-              ) : (
-                <img
-                  src="/selfie.jpg"
-                  alt="Profile selfie"
-                  className="h-[200px] w-full rounded-[14px] object-cover"
-                  onError={() => setPhotoMissing(true)}
-                />
-              )}
-            </div>
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-[3rem] sm:text-[4.5rem] md:text-[5.5rem] font-bold tracking-tight leading-[0.95] mb-6 text-foreground"
+          >
+            Building Apps <br />
+            <span className="text-accent">People Actually Use.</span>
+          </motion.h1>
+
+          {/* Sub */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-[17px] sm:text-[21px] text-muted max-w-2xl mx-auto mb-10 leading-relaxed tracking-tight"
+          >
+            Full-stack and mobile engineer with 3+ years shipping cross-platform
+            applications for web, mobile, and desktop. I also stream for fun.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.25 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 w-full sm:w-auto"
+          >
+            <a href="#portfolio" className="btn-primary w-full sm:w-auto px-8 py-3.5 text-[15px]">View My Work</a>
+            <a href="#contact" className="btn-secondary w-full sm:w-auto px-8 py-3.5 text-[15px]">Get in Touch</a>
+          </motion.div>
+
+          {/* Socials */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="flex items-center justify-center gap-4"
+          >
+            {socials.map(({ icon: Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="w-11 h-11 rounded-full glass flex items-center justify-center text-muted hover:text-foreground hover:bg-black/[0.06] transition-all duration-300"
+              >
+                <Icon size={18} strokeWidth={1.5} />
+              </a>
+            ))}
           </motion.div>
         </div>
 
         {/* Scroll indicator */}
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="mt-16 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center"
         >
-          <a href="#stats" className="inline-block animate-bounce">
-            <ArrowDown size={16} className="text-muted/40" />
+          <a href="#stats" className="inline-block animate-bounce p-2">
+            <ArrowDown size={20} className="text-muted/40 hover:text-foreground transition-colors" />
           </a>
         </motion.div>
       </div>

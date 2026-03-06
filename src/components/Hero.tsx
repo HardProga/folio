@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { ArrowDown, Github, Linkedin, Twitch, Youtube } from "lucide-react";
+import { ArrowRight, Github, Linkedin, Twitch, Youtube } from "lucide-react";
 import { motion } from "framer-motion";
+
+// ← Replace with your actual first name
+const DISPLAY_NAME = "Developer";
 
 const socials = [
   { icon: Github,   href: "https://github.com",   label: "GitHub" },
@@ -13,116 +16,162 @@ export default function Hero() {
   const [photoMissing, setPhotoMissing] = useState(false);
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-24">
-      <div className="relative z-10 section-container flex flex-col items-center text-center">
+    <section className="relative min-h-screen overflow-hidden bg-background flex flex-col">
 
-        {/* ── Top: Professional Portrait ── */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-sm mx-auto mb-14"
-        >
-          {/* Portrait container — portrait aspect so the photo isn't cropped */}
-          <div className="relative rounded-[2rem] overflow-hidden bg-surface mx-auto w-full max-w-[420px] aspect-[4/5]">
+      {/* ── Subtle Apple-style background orbs ── */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div
+          className="absolute top-0 left-1/4 w-[800px] h-[700px] rounded-full"
+          style={{ background: "radial-gradient(ellipse at center, #f0f0f2 0%, transparent 65%)", opacity: 0.9 }}
+        />
+        <div
+          className="absolute bottom-0 right-1/4 w-[600px] h-[500px] rounded-full"
+          style={{ background: "radial-gradient(ellipse at center, #e8e8ea 0%, transparent 65%)", opacity: 0.6 }}
+        />
+      </div>
+
+      {/* ── Main layout ── */}
+      <div className="relative z-10 flex-1 flex flex-col">
+
+        {/* 3-col grid on desktop, stacked on mobile */}
+        <div className="flex-1 section-container grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] lg:items-end pt-24 lg:pt-20 gap-y-8 lg:gap-y-0">
+
+          {/* ── LEFT: badge · headline · socials ── */}
+          <motion.div
+            className="flex flex-col items-center text-center lg:items-start lg:text-left lg:pb-16 gap-5 order-2 lg:order-1"
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Glass availability badge */}
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[12px] font-medium text-foreground"
+              style={{
+                background: "rgba(255,255,255,0.75)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                border: "1px solid rgba(0,0,0,0.08)",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+              }}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-70" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+              </span>
+              Available for Work
+            </span>
+
+            {/* Headline */}
+            <h1 className="text-[2.4rem] sm:text-[2.9rem] lg:text-[2.8rem] font-bold tracking-[-0.035em] leading-[1.06] text-foreground">
+              Full-Stack &amp; Mobile<br />
+              Developer based<br />
+              in [Your City]
+            </h1>
+
+            {/* Social icons — glass pills */}
+            <div className="flex items-center gap-2">
+              {socials.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-muted hover:text-foreground transition-all duration-200"
+                  style={{
+                    background: "rgba(255,255,255,0.7)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Icon size={15} strokeWidth={1.5} />
+                </a>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* ── CENTER: floating portrait (z-20 so it overlaps name) ── */}
+          <motion.div
+            className="relative z-20 order-1 lg:order-2 flex justify-center items-end"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
             {photoMissing ? (
-              <div className="w-full h-full flex items-center justify-center p-8 text-center">
-                <p className="text-[15px] text-muted">
-                  Add your professional image as{" "}
-                  <span className="text-foreground font-medium">public/portrait.png</span>
+              <div
+                className="w-[260px] h-[360px] sm:w-[300px] sm:h-[420px] lg:w-[320px] lg:h-[560px] rounded-[2.5rem] flex items-center justify-center p-6 text-center"
+                style={{ background: "#f5f5f7" }}
+              >
+                <p className="text-[13px] text-muted leading-relaxed">
+                  Add <span className="text-foreground font-medium">public/portrait.png</span>
+                  <br />with background removed
                 </p>
               </div>
             ) : (
               <img
                 src="/portrait.png"
-                alt="Professional studio portrait"
-                className="w-full h-full object-cover object-center"
+                alt="Professional portrait"
+                className="h-[340px] sm:h-[460px] lg:h-[68vh] lg:max-h-[660px] w-auto object-contain object-bottom"
+                style={{
+                  filter: "drop-shadow(0 32px 72px rgba(0,0,0,0.13)) drop-shadow(0 8px 24px rgba(0,0,0,0.07))",
+                }}
                 onError={() => setPhotoMissing(true)}
               />
             )}
-          </div>
-        </motion.div>
-
-        {/* ── Bottom: Copy & CTAs ── */}
-        <div className="max-w-3xl mx-auto flex flex-col items-center">
-          
-          {/* Overline badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-          >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-foreground text-white text-[11px] font-semibold tracking-[0.08em] uppercase mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
-              Mobile &amp; Software Engineer
-            </span>
           </motion.div>
 
-          {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="text-[3rem] sm:text-[4.5rem] md:text-[5.5rem] font-bold tracking-tight leading-[0.95] mb-6 text-foreground"
-          >
-            Building Apps <br />
-            People Actually Use.
-          </motion.h1>
-
-          {/* Sub */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-[17px] sm:text-[21px] text-muted max-w-2xl mx-auto mb-10 leading-relaxed tracking-tight"
-          >
-            Full-stack and mobile engineer with 3+ years shipping cross-platform
-            applications for web, mobile, and desktop. I also stream for fun.
-          </motion.p>
-
-          {/* CTAs */}
+          {/* ── RIGHT: bio · CTA ── */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.25 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 w-full sm:w-auto"
+            className="flex flex-col items-center text-center lg:items-end lg:text-right lg:pb-16 gap-5 order-3"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <a href="#portfolio" className="btn-primary w-full sm:w-auto px-8 py-3.5 text-[15px]">View My Work</a>
-            <a href="#contact" className="btn-secondary w-full sm:w-auto px-8 py-3.5 text-[15px]">Get in Touch</a>
-          </motion.div>
+            {/* Bio — glass card on mobile, bare on desktop */}
+            <p className="max-w-[260px] sm:max-w-[280px] lg:max-w-[220px] text-[14px] sm:text-[15px] text-muted leading-[1.6] tracking-tight">
+              Full-stack and mobile engineer with 3+ years shipping cross-platform
+              applications for web, mobile, and desktop. I turn ideas into products people actually love.
+            </p>
 
-          {/* Socials */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="flex items-center justify-center gap-4"
-          >
-            {socials.map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="w-11 h-11 rounded-full glass flex items-center justify-center text-muted hover:text-foreground hover:bg-black/[0.06] transition-all duration-300"
-              >
-                <Icon size={18} strokeWidth={1.5} />
-              </a>
-            ))}
+            {/* Primary CTA — glass-tinted black pill */}
+            <a
+              href="#portfolio"
+              className="group inline-flex items-center gap-2.5 text-white text-[14px] font-medium px-5 py-3 rounded-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              style={{
+                background: "#1d1d1f",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.12)",
+              }}
+            >
+              <span className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center">
+                <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+              </span>
+              See my works
+            </a>
+
+            {/* Ghost link */}
+            <a
+              href="#contact"
+              className="text-[13px] text-muted/70 hover:text-foreground transition-colors tracking-tight"
+            >
+              Get in touch →
+            </a>
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* ── Large display name — sits behind the portrait (z-10) ── */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center"
+          className="relative z-10 section-container overflow-hidden select-none pointer-events-none -mt-6 sm:-mt-10 lg:-mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
         >
-          <a href="#stats" className="inline-block animate-bounce p-2">
-            <ArrowDown size={20} className="text-muted/40 hover:text-foreground transition-colors" />
-          </a>
+          <p
+            className="font-bold text-foreground leading-[0.82] tracking-[-0.04em]"
+            style={{ fontSize: "clamp(5.5rem, 19vw, 20rem)" }}
+          >
+            {DISPLAY_NAME}
+          </p>
         </motion.div>
       </div>
     </section>

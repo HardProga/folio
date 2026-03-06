@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ArrowRight, Github, Linkedin, Twitch, Youtube } from "lucide-react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const DISPLAY_NAME = "Emmanuel";
 const LETTERS = DISPLAY_NAME.split("");
+const THREE_CDN = "https://unpkg.com/three@0.181.1/build/three.min.js";
 
 const socials = [
   { icon: Github, href: "https://github.com", label: "GitHub" },
@@ -12,69 +13,296 @@ const socials = [
   { icon: Youtube, href: "https://youtube.com", label: "YouTube" },
 ];
 
-// Custom easing for that premium Apple-like smoothness
 const customEase = [0.16, 1, 0.3, 1];
 
-// Stable particles (computed once at module level)
-const PARTICLES = Array.from({ length: 14 }, (_, i) => ({
-  id: i,
-  x: (i * 7.3 + 3) % 100,
-  size: ((i * 1.7 + 1.5) % 2.5) + 1.2,
-  duration: ((i * 2.1 + 5) % 8) + 6,
-  delay: (i * 1.3) % 6,
-  opacity: ((i * 0.06 + 0.06) % 0.2) + 0.06,
-}));
+// Gold palette matching the site's #1d1d1f charcoal
+const GOLD = { r: 200, g: 160, b: 55 };  // #c8a037
+const DARK = { r: 26,  g: 26,  b: 29  };  // ~#1a1a1d
+
+function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+
+// Apply lightning style directly to a DOM span — zero React re-renders
+function applyLetterStyle(el: HTMLSpanElement, intensity: number) {
+  if (intensity < 0.008) {
+    el.style.mixBlendMode = "overlay";
+    el.style.color = "#1a1a1d";
+    el.style.opacity = "0.9";
+    el.style.textShadow = "none";
+    return;
+  }
+  const t = intensity;
+  const t2 = t * t; // quadratic for dramatic glow curve
+  const r = Math.round(lerp(DARK.r, GOLD.r, t));
+  const g = Math.round(lerp(DARK.g, GOLD.g, t));
+  const b = Math.round(lerp(DARK.b, GOLD.b, t));
+  el.style.mixBlendMode = "normal";
+  el.style.color = `rgb(${r},${g},${b})`;
+  el.style.opacity = String(0.9 + 0.1 * t);
+  el.style.textShadow = [
+    `0 0 ${Math.round(14 * t2)}px rgba(${GOLD.r},${GOLD.g},${GOLD.b},${t2.toFixed(2)})`,
+    `0 0 ${Math.round(40 * t2)}px rgba(${GOLD.r},${GOLD.g},${GOLD.b},${(t2 * 0.6).toFixed(2)})`,
+    `0 0 ${Math.round(100 * t2)}px rgba(${GOLD.r},${GOLD.g},${GOLD.b},${(t2 * 0.28).toFixed(2)})`,
+    `0 0 ${Math.round(180 * t2)}px rgba(255,220,100,${(t2 * 0.12).toFixed(2)})`,
+  ].join(",");
+}
 
 export default function Hero() {
   const [photoMissing, setPhotoMissing] = useState(false);
-  const [activeLetter, setActiveLetter] = useState<number | null>(null);
 
-  // ── Mouse parallax values ──────────────────────────────────────
+  // ── Three.js canvas mount ──────────────────────────────────────
+  const threeMount = useRef<HTMLDivElement>(null);
+  const threeMouseRef = useRef({ x: 0, y: 0 });
+
+  // ── Letter refs for direct DOM lightning ──────────────────────
+  const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const intensities = useRef<number[]>(new Array(LETTERS.length).fill(0));
+  const holdFrames = useRef<number[]>(new Array(LETTERS.length).fill(0));
+  const rafId = useRef<number>(0);
+
+  // ── Mouse for portrait 3D tilt ────────────────────────────────
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
-  const springX = useSpring(rawX, { stiffness: 28, damping: 22 });
-  const springY = useSpring(rawY, { stiffness: 28, damping: 22 });
-  const portraitX = useTransform(springX, [-1, 1], [-16, 16]);
-  const portraitY = useTransform(springY, [-1, 1], [-7, 7]);
+  const springX = useSpring(rawX, { stiffness: 32, damping: 24 });
+  const springY = useSpring(rawY, { stiffness: 32, damping: 24 });
+  const rotateY = useTransform(springX, [-1, 1], [-12, 12]);
+  const rotateX = useTransform(springY, [-1, 1], [7, -7]);
 
-  // ── Cursor glow ────────────────────────────────────────────────
-  const cursorX = useMotionValue(-300);
-  const cursorY = useMotionValue(-300);
-  const smoothCX = useSpring(cursorX, { stiffness: 90, damping: 28 });
-  const smoothCY = useSpring(cursorY, { stiffness: 90, damping: 28 });
+  // ── Cursor gold glow ──────────────────────────────────────────
+  const cursorX = useMotionValue(-400);
+  const cursorY = useMotionValue(-400);
+  const smoothCX = useSpring(cursorX, { stiffness: 80, damping: 26 });
+  const smoothCY = useSpring(cursorY, { stiffness: 80, damping: 26 });
 
-  // ── Lightning letter sequence ──────────────────────────────────
+  // ── Three.js particle cloud ───────────────────────────────────
+  useEffect(() => {
+    const mount = threeMount.current;
+    if (!mount) return;
+    let frameId = 0;
+    let destroy: (() => void) | undefined;
+
+    const initThree = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const THREE = (window as any).THREE;
+      if (!THREE || !mount) return undefined;
+
+      const W = mount.clientWidth;
+      const H = mount.clientHeight;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(52, W / H, 0.1, 100);
+      camera.position.set(0, 0, 7);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H);
+      renderer.setClearColor(0x000000, 0); // transparent
+      mount.appendChild(renderer.domElement);
+
+      // ── Build point cloud ──
+      const COUNT = 140;
+      const positions = new Float32Array(COUNT * 3);
+      const colors    = new Float32Array(COUNT * 3);
+      const sizes     = new Float32Array(COUNT);
+
+      // Pre-seeded "random" via simple LCG so it's stable across renders
+      let seed = 42;
+      const rng = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
+
+      for (let i = 0; i < COUNT; i++) {
+        positions[i * 3]     = (rng() - 0.5) * 14;  // x: ±7
+        positions[i * 3 + 1] = (rng() - 0.5) * 8;   // y: ±4
+        positions[i * 3 + 2] = (rng() - 0.5) * 6;   // z: ±3  ← depth = 3D parallax
+
+        const roll = rng();
+        if (roll < 0.45) {
+          // Dark charcoal particles
+          colors[i * 3] = 0.12; colors[i * 3 + 1] = 0.12; colors[i * 3 + 2] = 0.13;
+        } else if (roll < 0.80) {
+          // Warm gold particles
+          colors[i * 3] = 0.78; colors[i * 3 + 1] = 0.63; colors[i * 3 + 2] = 0.22;
+        } else {
+          // Bright champagne
+          colors[i * 3] = 0.95; colors[i * 3 + 1] = 0.86; colors[i * 3 + 2] = 0.56;
+        }
+        sizes[i] = rng() * 0.06 + 0.025;
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute("color",    new THREE.BufferAttribute(colors,    3));
+
+      const mat = new THREE.PointsMaterial({
+        size: 0.055,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.55,
+        sizeAttenuation: true,
+      });
+
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+
+      // Very subtle ambient drift velocities
+      const vel = new Float32Array(COUNT * 3);
+      for (let i = 0; i < COUNT * 3; i++) vel[i] = (rng() - 0.5) * 0.0006;
+
+      // Resize
+      const onResize = () => {
+        if (!mount) return;
+        camera.aspect = mount.clientWidth / mount.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(mount.clientWidth, mount.clientHeight);
+      };
+      window.addEventListener("resize", onResize);
+
+      // Animate
+      let t = 0;
+      const animate = () => {
+        t += 0.0005;
+        const pos = geo.attributes.position.array as Float32Array;
+        // Drift each particle + wrap around
+        for (let i = 0; i < COUNT; i++) {
+          pos[i * 3]     += vel[i * 3];
+          pos[i * 3 + 1] += vel[i * 3 + 1];
+          pos[i * 3 + 2] += vel[i * 3 + 2];
+          // Wrap at boundaries
+          if (pos[i * 3]     >  7)  pos[i * 3]     = -7;
+          if (pos[i * 3]     < -7)  pos[i * 3]     =  7;
+          if (pos[i * 3 + 1] >  4)  pos[i * 3 + 1] = -4;
+          if (pos[i * 3 + 1] < -4)  pos[i * 3 + 1] =  4;
+          if (pos[i * 3 + 2] >  3)  pos[i * 3 + 2] = -3;
+          if (pos[i * 3 + 2] < -3)  pos[i * 3 + 2] =  3;
+        }
+        geo.attributes.position.needsUpdate = true;
+
+        // Scene rotation follows mouse (parallax)
+        const mx = threeMouseRef.current.x;
+        const my = threeMouseRef.current.y;
+        scene.rotation.y += (mx * 0.22 - scene.rotation.y) * 0.04;
+        scene.rotation.x += (-my * 0.12 - scene.rotation.x) * 0.04;
+        // Slow auto-rotation for when mouse is idle
+        points.rotation.y = t * 0.6;
+
+        renderer.render(scene, camera);
+        frameId = requestAnimationFrame(animate);
+      };
+      animate();
+
+      return () => {
+        window.removeEventListener("resize", onResize);
+        cancelAnimationFrame(frameId);
+        geo.dispose();
+        mat.dispose();
+        renderer.dispose();
+        if (renderer.domElement.parentNode === mount) {
+          mount.removeChild(renderer.domElement);
+        }
+      };
+    };
+
+    if (!(window as any).THREE) {
+      const script = document.createElement("script");
+      script.src = THREE_CDN;
+      script.async = true;
+      script.onload = () => { destroy = initThree(); };
+      document.head.appendChild(script);
+    } else {
+      destroy = initThree();
+    }
+
+    return () => destroy?.();
+  }, []);
+
+  // ── Lightning rAF loop (direct DOM, zero re-renders) ──────────
+  useEffect(() => {
+    const FADE = 0.016; // per frame — ~62 frames / ~1s to fully fade
+
+    const tick = () => {
+      for (let i = 0; i < LETTERS.length; i++) {
+        if (holdFrames.current[i] > 0) {
+          holdFrames.current[i]--;
+          // peak — no intensity change
+        } else if (intensities.current[i] > 0) {
+          intensities.current[i] = Math.max(0, intensities.current[i] - FADE);
+          const el = letterRefs.current[i];
+          if (el) applyLetterStyle(el, intensities.current[i]);
+        }
+      }
+      rafId.current = requestAnimationFrame(tick);
+    };
+    rafId.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId.current);
+  }, []);
+
+  // ── Random lightning scheduler ────────────────────────────────
   useEffect(() => {
     let tid: ReturnType<typeof setTimeout>;
     let alive = true;
-    let idx = 0;
 
-    const flash = () => {
+    const strike = (idx: number, hold = 18) => {
+      intensities.current[idx] = 1.0;
+      holdFrames.current[idx] = hold;
+      const el = letterRefs.current[idx];
+      if (el) applyLetterStyle(el, 1.0);
+    };
+
+    const rnd = (min: number, max: number) => min + Math.random() * (max - min);
+    const randIdx = () => Math.floor(Math.random() * LETTERS.length);
+
+    const schedule = () => {
       if (!alive) return;
-      if (idx < LETTERS.length) {
-        setActiveLetter(idx);
-        idx++;
-        tid = setTimeout(flash, 155);
+      const roll = Math.random();
+
+      if (roll < 0.12) {
+        // ── Cascade: 3-6 letters fire in rapid succession
+        const count = 3 + Math.floor(Math.random() * 4);
+        const used = new Set<number>();
+        for (let c = 0; c < count; c++) {
+          let idx = randIdx();
+          while (used.has(idx)) idx = randIdx(); // no duplicate in same burst
+          used.add(idx);
+          const holdTime = Math.round(rnd(12, 30));
+          setTimeout(() => { if (alive) strike(idx, holdTime); }, c * rnd(55, 110));
+        }
+        tid = setTimeout(schedule, rnd(300, 700));
+
+      } else if (roll < 0.30) {
+        // ── Walk: current→adjacent (feels like electricity travelling)
+        const start = randIdx();
+        const steps = 2 + Math.floor(Math.random() * 3);
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        for (let s = 0; s < steps; s++) {
+          const idx = ((start + dir * s) + LETTERS.length) % LETTERS.length;
+          setTimeout(() => { if (alive) strike(idx, Math.round(rnd(10, 22))); }, s * rnd(80, 140));
+        }
+        tid = setTimeout(schedule, rnd(400, 900));
+
+      } else if (roll < 0.55) {
+        // ── Double: 2 random, near-simultaneous
+        strike(randIdx(), Math.round(rnd(14, 28)));
+        setTimeout(() => { if (alive) strike(randIdx(), Math.round(rnd(14, 28))); }, rnd(60, 160));
+        tid = setTimeout(schedule, rnd(200, 700));
+
       } else {
-        setActiveLetter(null);
-        idx = 0;
-        tid = setTimeout(flash, 2600); // pause between runs
+        // ── Single random strike
+        strike(randIdx(), Math.round(rnd(10, 26)));
+        tid = setTimeout(schedule, rnd(120, 900));
       }
     };
 
-    tid = setTimeout(flash, 1600); // initial delay
-    return () => {
-      alive = false;
-      clearTimeout(tid);
-    };
+    tid = setTimeout(schedule, 1000);
+    return () => { alive = false; clearTimeout(tid); };
   }, []);
 
-  // ── Mouse handler ──────────────────────────────────────────────
+  // ── Mouse handler ─────────────────────────────────────────────
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      rawX.set((e.clientX - rect.width / 2) / (rect.width / 2));
-      rawY.set((e.clientY - rect.height / 2) / (rect.height / 2));
+      const nx = (e.clientX - rect.width  / 2) / (rect.width  / 2);
+      const ny = (e.clientY - rect.height / 2) / (rect.height / 2);
+      rawX.set(nx);
+      rawY.set(ny);
+      threeMouseRef.current = { x: nx, y: ny };
       cursorX.set(e.clientX - rect.left);
       cursorY.set(e.clientY - rect.top);
     },
@@ -82,8 +310,8 @@ export default function Hero() {
   );
 
   const handleMouseLeave = useCallback(() => {
-    rawX.set(0);
-    rawY.set(0);
+    rawX.set(0); rawY.set(0);
+    threeMouseRef.current = { x: 0, y: 0 };
   }, [rawX, rawY]);
 
   return (
@@ -92,7 +320,7 @@ export default function Hero() {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* ── Background gradient orbs (animated) ── */}
+      {/* ── Background gradient orbs (slow drift) ── */}
       <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
         <motion.div
           className="absolute -top-32 -left-16 w-[85vw] h-[80vh] rounded-full"
@@ -118,53 +346,40 @@ export default function Hero() {
         }}
       />
 
-      {/* ── Cursor glow ── */}
+      {/* ── Three.js 3D particle cloud ── */}
+      <div
+        ref={threeMount}
+        className="absolute inset-0 z-[1] pointer-events-none"
+        aria-hidden="true"
+      />
+
+      {/* ── Cursor gold glow ── */}
       <motion.div
-        className="absolute z-[1] pointer-events-none rounded-full"
+        className="absolute z-[2] pointer-events-none rounded-full"
         aria-hidden="true"
         style={{
           x: smoothCX,
           y: smoothCY,
           translateX: "-50%",
           translateY: "-50%",
-          width: 320,
-          height: 320,
+          width: 360,
+          height: 360,
           background:
-            "radial-gradient(circle, rgba(160,170,255,0.10) 0%, rgba(180,190,255,0.04) 45%, transparent 70%)",
+            "radial-gradient(circle, rgba(200,160,55,0.07) 0%, rgba(200,160,55,0.025) 45%, transparent 70%)",
         }}
       />
 
-      {/* ── Floating ambient particles ── */}
-      <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden" aria-hidden="true">
-        {PARTICLES.map((p) => (
-          <motion.div
-            key={p.id}
-            className="absolute rounded-full bg-neutral-500"
-            style={{
-              left: `${p.x}%`,
-              bottom: -8,
-              width: p.size,
-              height: p.size,
-              opacity: p.opacity,
-            }}
-            animate={{ y: [0, -Math.round(window?.innerHeight ?? 900) - 20] }}
-            transition={{
-              duration: p.duration,
-              delay: p.delay,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ── Portrait: Z-10 (Behind the name) + mouse parallax ── */}
+      {/* ── Portrait: Z-10, 3D CSS tilt + behind name ── */}
       <motion.div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 origin-bottom"
         initial={{ opacity: 0, y: 40, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 1.2, ease: customEase }}
-        style={{ x: portraitX, y: portraitY }}
+        style={{
+          rotateX,
+          rotateY,
+          transformPerspective: 1400,
+        }}
       >
         {photoMissing ? (
           <div className="w-[280px] h-[420px] sm:w-[340px] sm:h-[520px] flex items-center justify-center p-8 text-center rounded-3xl border border-dashed border-neutral-200 bg-neutral-50/50 backdrop-blur-sm mb-10">
@@ -183,7 +398,7 @@ export default function Hero() {
         )}
       </motion.div>
 
-      {/* ── Display name: Z-20 (IN FRONT of image) + lightning letters ── */}
+      {/* ── "Emmanuel" — Z-20, gold lightning via direct DOM refs ── */}
       <motion.div
         className="absolute bottom-0 left-0 right-0 z-20 overflow-hidden pointer-events-none select-none flex justify-center"
         initial={{ opacity: 0, y: 30 }}
@@ -198,16 +413,12 @@ export default function Hero() {
             {LETTERS.map((letter, i) => (
               <span
                 key={i}
+                ref={(el) => { letterRefs.current[i] = el; }}
                 style={{
                   display: "inline-block",
-                  mixBlendMode: activeLetter === i ? "normal" : "overlay",
-                  color: activeLetter === i ? "#b0bcff" : "#1a1a1a",
-                  opacity: activeLetter === i ? 1 : 0.9,
-                  textShadow:
-                    activeLetter === i
-                      ? "0 0 20px rgba(150,170,255,1), 0 0 60px rgba(130,150,255,0.75), 0 0 120px rgba(110,130,255,0.4)"
-                      : "none",
-                  transition: "text-shadow 0.1s ease, color 0.1s ease, opacity 0.1s ease",
+                  mixBlendMode: "overlay",
+                  color: "#1a1a1d",
+                  opacity: 0.9,
                 }}
               >
                 {letter}

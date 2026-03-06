@@ -110,7 +110,7 @@ export default function Hero() {
               </div>
             ) : (
               <img
-                src="/portrait.png"
+                src="/portrait2.png"
                 alt="Professional portrait"
                 className="h-[340px] sm:h-[460px] lg:h-[68vh] lg:max-h-[660px] w-auto object-contain object-bottom"
                 style={{

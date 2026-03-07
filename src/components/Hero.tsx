@@ -34,17 +34,34 @@ const WATER_VERT = /* glsl */`
     return amp * sin(dot(normalize(dir), pos) * freq + uTime * speed + phase);
   }
 
-  // Sum of 8 waves + an interactive mouse ripple
+  // 8 primary swell waves + physics-based enhancements + mouse ripple
   float elevation(vec2 pos) {
+    // Slow amplitude gust: ±14 % envelope over ~100 s — simulates wind bursts
+    float gust = 1.0 + 0.14 * sin(uTime * 0.062);
+
     float e = 0.0;
-    e += sineWave(pos, vec2( 1.00,  0.30), 1.50, 0.120, 1.20, 0.00);
-    e += sineWave(pos, vec2(-0.70,  1.00), 2.00, 0.090, 1.50, 1.10);
-    e += sineWave(pos, vec2( 0.50, -0.80), 1.20, 0.070, 0.90, 2.30);
-    e += sineWave(pos, vec2(-1.00, -0.50), 2.50, 0.050, 1.80, 0.70);
-    e += sineWave(pos, vec2( 0.30,  0.95), 3.50, 0.030, 2.10, 3.10);
-    e += sineWave(pos, vec2(-0.80,  0.20), 1.80, 0.060, 1.10, 1.90);
-    e += sineWave(pos, vec2( 0.90, -0.40), 2.80, 0.040, 1.60, 0.50);
-    e += sineWave(pos, vec2(-0.40, -0.90), 3.20, 0.025, 2.30, 2.70);
+
+    // Primary swell layer (gust-modulated so the whole surface breathes)
+    e += gust * sineWave(pos, vec2( 1.00,  0.30), 1.50, 0.120, 1.20, 0.00);
+    e += gust * sineWave(pos, vec2(-0.70,  1.00), 2.00, 0.090, 1.50, 1.10);
+    e += gust * sineWave(pos, vec2( 0.50, -0.80), 1.20, 0.070, 0.90, 2.30);
+    e += gust * sineWave(pos, vec2(-1.00, -0.50), 2.50, 0.050, 1.80, 0.70);
+    e += gust * sineWave(pos, vec2( 0.30,  0.95), 3.50, 0.030, 2.10, 3.10);
+    e += gust * sineWave(pos, vec2(-0.80,  0.20), 1.80, 0.060, 1.10, 1.90);
+    e += gust * sineWave(pos, vec2( 0.90, -0.40), 2.80, 0.040, 1.60, 0.50);
+    e += gust * sineWave(pos, vec2(-0.40, -0.90), 3.20, 0.025, 2.30, 2.70);
+
+    // High-frequency micro-ripples: tiny amplitude, fast — add surface texture
+    // and catch specular light at small scales without changing overall shape
+    e += sineWave(pos, vec2( 0.65,  0.76), 6.50, 0.007, 3.20, 0.00);
+    e += sineWave(pos, vec2(-0.88,  0.47), 8.00, 0.006, 3.90, 1.72);
+    e += sineWave(pos, vec2( 0.22, -0.97), 5.50, 0.009, 2.80, 3.44);
+
+    // Large circular swell: slow radial pulses from centre with an angular
+    // twist — gives the "goes around everywhere" feeling physically
+    float r     = length(pos) * 0.22;
+    float theta = atan(pos.y, pos.x);
+    e += 0.055 * sin(r * 2.2 - uTime * 0.42 + theta * 0.60);
 
     // Mouse-driven ripple — emanates from cursor in all directions
     float dist   = length(pos - uMouse);
@@ -139,6 +156,15 @@ const WATER_FRAG = /* glsl */`
     vec3  envCol  = mix(vec3(0.82, 0.93, 0.98), vec3(1.0), fresnel * 0.30);
     color = mix(color, envCol, fresnel * 0.55);
 
+    // --- Thin-film iridescence: delicate rainbow shimmer at glancing angles ---
+    // Only present where Fresnel is non-trivial; blend kept at 2.5 % max
+    vec3 irid = vec3(
+      0.5 + 0.5 * sin(NdotV * 8.0 + 0.00),
+      0.5 + 0.5 * sin(NdotV * 8.0 + 2.09),
+      0.5 + 0.5 * sin(NdotV * 8.0 + 4.19)
+    );
+    color = mix(color, irid, 0.025 * fresnel);
+
     // Alpha: troughs slightly transparent, crests and foam more opaque
     float alpha = mix(0.58, 0.84, t);
 
@@ -194,6 +220,7 @@ function drawGlint(
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Hero() {
   const [photoMissing, setPhotoMissing] = useState(false);
+  const [imgLoaded,    setImgLoaded]    = useState(false);
 
   const sectionRef    = useRef<HTMLElement>(null);
   const waterMount    = useRef<HTMLDivElement>(null);
@@ -208,6 +235,18 @@ export default function Hero() {
   const cursorY  = useMotionValue(-400);
   const smoothCX = useSpring(cursorX, { stiffness: 80, damping: 26 });
   const smoothCY = useSpring(cursorY, { stiffness: 80, damping: 26 });
+
+  // ── Portrait preload — inject <link rel="preload"> before Three.js so the
+  //    browser fetches the image at the highest possible priority ────────────
+  useEffect(() => {
+    const link  = document.createElement("link");
+    link.rel    = "preload";
+    link.as     = "image";
+    link.href   = "/portrait2.png";
+    (link as HTMLLinkElement & { fetchPriority: string }).fetchPriority = "high";
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, []);
 
   // ── Full-screen 3-D water ─────────────────────────────────────────────────
   useEffect(() => {
@@ -266,10 +305,15 @@ export default function Hero() {
       };
       window.addEventListener("resize", onResize);
 
-      // Animation loop
-      let time = 0;
-      const animate = () => {
-        time += 0.016;
+      // Animation loop — uses real elapsed time so speed is identical on
+      // 30 Hz, 60 Hz and 144 Hz displays; delta capped at 50 ms to prevent
+      // a big jump after a tab regains focus
+      let time    = 0;
+      let rafPrev = performance.now();
+      const animate = (now: number) => {
+        const dt = Math.min((now - rafPrev) * 0.001, 0.05);
+        rafPrev  = now;
+        time    += dt;
         uniforms.uTime.value = time;
 
         // Pass mouse position to shader (world-space ≈ screen normalised × extent)
@@ -286,7 +330,7 @@ export default function Hero() {
         renderer.render(scene, camera);
         frameId = requestAnimationFrame(animate);
       };
-      animate();
+      frameId = requestAnimationFrame(animate);
 
       return () => {
         window.removeEventListener("resize", onResize);
@@ -400,7 +444,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[100svh] overflow-hidden text-neutral-900 selection:bg-white/30 selection:text-white"
+      className="relative h-[108svh] min-h-[640px] overflow-hidden text-neutral-900 selection:bg-white/30 selection:text-white"
       style={{
         /* Gradient shows before Three.js loads; matches water palette */
         background: "linear-gradient(135deg, #7dbdd9 0%, #a8d4ea 35%, #c4e5f4 65%, #ddf0f9 100%)",
@@ -452,9 +496,9 @@ export default function Hero() {
       {/* ── Portrait ── */}
       <motion.div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 origin-bottom"
-        initial={{ opacity: 0, y: 28 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: customEase }}
+        transition={{ duration: 0.85, ease: customEase }}
       >
         {photoMissing ? (
           <div className="w-[280px] h-[420px] sm:w-[340px] sm:h-[520px] flex items-center justify-center p-8 text-center rounded-3xl border border-dashed border-white/40 bg-white/15 backdrop-blur-sm mb-10">
@@ -467,7 +511,14 @@ export default function Hero() {
           <img
             src="/portrait2.png"
             alt="Portrait"
+            fetchPriority="high"
+            decoding="async"
             className="h-[82svh] sm:h-[88svh] lg:h-[92svh] max-h-[940px] w-auto object-contain object-bottom drop-shadow-[0_20px_60px_rgba(0,40,80,0.18)]"
+            style={{
+              opacity:    imgLoaded ? 1 : 0,
+              transition: "opacity 0.35s ease",
+            }}
+            onLoad={() => setImgLoaded(true)}
             onError={() => setPhotoMissing(true)}
           />
         )}
